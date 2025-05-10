@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   php:
-    image: gek22/php-app:latest
+    image: gek22/onlyphp-app:latest
     container_name: php-app
     volumes:
       - .:/var/www/html
@@ -10,7 +10,7 @@ services:
       - app-network
 
   nginx:
-    image: gek22/nginx-custom:latest
+    image: gek22/onlynginx-app:latest
     container_name: nginx-server
     ports:
       - "80:80"
