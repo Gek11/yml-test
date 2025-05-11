@@ -9,10 +9,15 @@ services:
     working_dir: /var/www/html
     entrypoint: >
       sh -c "
-        apt-get update &&
-        apt-get install -y git unzip &&
-        docker-php-ext-install mysqli pdo pdo_mysql &&
-        php-fpm
+         apt-get update &&
+         apt-get install -y git unzip &&
+         docker-php-ext-install mysqli pdo pdo_mysql &&
+         if [ ! -f /var/www/html/index.php ]; then
+           git clone https://github.com/Gek11/pphp-main.git /tmp/app &&
+           cp -r /tmp/app/* /var/www/html/ &&
+           rm -rf /tmp/app;
+         fi &&
+         php-fpm
       "
 
   nginx:
