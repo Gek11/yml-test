@@ -1,27 +1,55 @@
-version: '3.3'
+version: '3.8'
 
 services:
   php:
-    image: gek22/php-image:latest
-    container_name: php-app
+    image: php:7.1-fpm
+    container_name: php-fpm
     volumes:
-      - .:/var/www/html
-    networks:
-      - app-network
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    command: >
+      sh -c "
+        apt-get update &&
+        apt-get install -y git unzip &&
+        docker-php-ext-install mysqli pdo pdo_mysql &&
+        if [ ! -f /var/www/html/index.php ]; then
+          git clone https://github.com/Gek11/pphp-main.git /tmp/app &&
+          cp -r /tmp/app/* /var/www/html/ &&
+          rm -rf /tmp/app;
+        fi &&
+        php-fpm
+      "
 
   nginx:
     image: nginx:alpine
-    container_name: nginx-server
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
-      - .:/var/www/html
-      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./src:/var/www/html
     depends_on:
       - php
-    networks:
-      - app-network
+    entrypoint: >
+      sh -c '
+        echo "
+        server {
+            listen 80;
+            server_name localhost;
 
-networks:
-  app-network:
-    driver: bridge
+            root /var/www/html;
+            index index.php index.html;
+
+            location / {
+                try_files \$uri \$uri/ =404;
+            }
+
+            location ~ \.php\$ {
+                include fastcgi_params;
+                fastcgi_pass php:9000;
+                fastcgi_index index.php;
+                fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+            }
+        }
+        " > /etc/nginx/conf.d/default.conf &&
+        nginx -g \"daemon off;\"
+      '
