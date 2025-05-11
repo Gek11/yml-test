@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   php:
@@ -7,7 +7,7 @@ services:
     volumes:
       - ./src:/var/www/html
     working_dir: /var/www/html
-    command: >
+    entrypoint: >
       sh -c "
         apt-get update &&
         apt-get install -y git unzip &&
@@ -24,7 +24,7 @@ services:
     image: nginx:alpine
     container_name: nginx
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./src:/var/www/html
     depends_on:
