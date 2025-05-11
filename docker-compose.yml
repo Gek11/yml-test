@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   php:
-    image: gek22/onlyphp-app:latest
+    image: gek22/php-image:latest
     container_name: php-app
     volumes:
       - .:/var/www/html
